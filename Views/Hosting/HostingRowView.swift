@@ -27,6 +27,16 @@ struct HostingRowView: View {
                             .padding(.horizontal, 5).padding(.vertical, 1)
                             .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Theme.borderSecondary))
                     }
+                    if run.isCancelled {
+                        Text("CANCELLED")
+                            .font(.system(size: 9, weight: .semibold))
+                            .tracking(0.8)
+                            .foregroundStyle(Theme.Status.declinedFg)
+                            .padding(.horizontal, 5).padding(.vertical, 1)
+                            .background(Theme.Status.declinedBg)
+                            .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Theme.Status.declinedRing))
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                    }
                 }
                 Text(metaText)
                     .font(.system(size: 14))

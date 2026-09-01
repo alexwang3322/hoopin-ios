@@ -169,6 +169,20 @@ final class RunStore {
         }
     }
 
+    // MARK: Mutations — cancel
+
+    /// Cancels a run the viewer hosts — soft, not a delete: the run and its join-request
+    /// history stay around, just marked. Mirrors `POST /runs/{id}/cancel` (API_CONTRACT.md §3.1).
+    @discardableResult
+    func cancel(runId: String) -> Bool {
+        guard let idx = runs.firstIndex(where: { $0.id == runId }) else { return false }
+        guard runs[idx].hostId == currentUserId else { return false }
+        guard !runs[idx].isCancelled else { return false }
+        runs[idx].isCancelled = true
+        runs[idx].cancelledAt = Date()
+        return true
+    }
+
     // MARK: Mutations — hosting / create
 
     /// Publishes a new run, or — if `draftId` names an existing draft — publishes that draft in

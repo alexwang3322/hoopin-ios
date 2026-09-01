@@ -18,6 +18,10 @@ struct Run: Identifiable, Hashable {
     var capacity: Int?
     var goingCount: Int
     var isDraft: Bool
+    /// Soft-cancelled by the host — distinct from deletion, the run stays around
+    /// (mirrors API_CONTRACT.md §3.1's cancel-vs-delete note / `is_cancelled`).
+    var isCancelled: Bool = false
+    var cancelledAt: Date? = nil
     var visibility: RunVisibility
     var autoApprove: Bool
     /// Approved roster excluding the host ("Who's playing"). Only populated where the source

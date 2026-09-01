@@ -10,6 +10,7 @@ struct EventDetailView: View {
     @Environment(ToastCenter.self) private var toast
     @Environment(\.navigate) private var navigate
     @State private var requestMessage: String = ""
+    @State private var confirmingCancel = false
 
     private var run: Run? { store.run(runId) }
 
@@ -18,6 +19,9 @@ struct EventDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     hero(for: run)
+                    if run.isCancelled {
+                        cancelledBanner
+                    }
                     titleBlock(for: run)
                     if let host = store.profile(run.hostId) {
                         PersonLinkView(user: host, subtitle: host.bio, avatarSize: 40)
@@ -26,7 +30,7 @@ struct EventDetailView: View {
                         .font(.body)
                         .foregroundStyle(Theme.textSecondary)
 
-                    if store.viewerAction(for: run) == .host {
+                    if store.viewerAction(for: run) == .host && !run.isCancelled {
                         requestsSection(for: run)
                     }
 
@@ -34,6 +38,9 @@ struct EventDetailView: View {
                     courtPanel(for: run)
                     if !store.attendees(for: run).isEmpty {
                         rosterPanel(for: run)
+                    }
+                    if store.viewerAction(for: run) == .host && !run.isCancelled {
+                        cancelButton(for: run)
                     }
                     actionPanel(for: run)
 
@@ -46,12 +53,44 @@ struct EventDetailView: View {
             .background(Theme.background)
             .navigationTitle(run.title)
             .navigationBarTitleDisplayMode(.inline)
+            .confirmationDialog(
+                "Cancel this run?",
+                isPresented: $confirmingCancel,
+                titleVisibility: .visible
+            ) {
+                Button("Cancel run", role: .destructive) {
+                    if store.cancel(runId: run.id) {
+                        toast.show("\(run.title) has been cancelled.")
+                    }
+                }
+                Button("Never mind", role: .cancel) {}
+            } message: {
+                Text("Players who requested or were approved will still see this run marked cancelled.")
+            }
         } else {
             ContentUnavailableView("Run not found", systemImage: "questionmark.circle")
         }
     }
 
     // MARK: Sections
+
+    private var cancelledBanner: some View {
+        Text("This run has been cancelled.")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Theme.Status.declinedFg)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(Theme.Status.declinedBg)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+
+    private func cancelButton(for run: Run) -> some View {
+        Button("Cancel game", role: .destructive) {
+            confirmingCancel = true
+        }
+        .buttonStyle(.bordered)
+        .tint(Theme.Status.declinedFg)
+    }
 
     private func hero(for run: Run) -> some View {
         LinearGradient(colors: [Color(hex: run.gradientStartHex), Color(hex: run.gradientEndHex)],
@@ -170,6 +209,12 @@ struct EventDetailView: View {
 
     @ViewBuilder
     private func actionPanel(for run: Run) -> some View {
+        if run.isCancelled {
+            Text("This run has been cancelled — no further requests can be made.")
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSecondary)
+                .padding(16).panelStyle()
+        } else {
         switch store.viewerAction(for: run) {
         case .canRequest:
             VStack(alignment: .leading, spacing: 10) {
@@ -247,6 +292,7 @@ struct EventDetailView: View {
                 .font(.subheadline)
                 .foregroundStyle(Theme.textSecondary)
                 .padding(16).panelStyle()
+        }
         }
     }
 }

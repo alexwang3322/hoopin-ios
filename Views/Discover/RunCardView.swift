@@ -69,7 +69,12 @@ struct RunCardView: View {
             .clipShape(RoundedRectangle(cornerRadius: 5))
             .padding(10)
 
-            if let badge = StatusBadgeView(viewerAction: action) {
+            if run.isCancelled {
+                StatusBadgeView(text: "Cancelled", foreground: Theme.Status.declinedFg,
+                                 background: Theme.Status.declinedBg, ring: Theme.Status.declinedRing)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(10)
+            } else if let badge = StatusBadgeView(viewerAction: action) {
                 badge
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(10)
