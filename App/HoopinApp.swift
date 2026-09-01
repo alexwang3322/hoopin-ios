@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct PullUpApp: App {
+struct HoopinApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
