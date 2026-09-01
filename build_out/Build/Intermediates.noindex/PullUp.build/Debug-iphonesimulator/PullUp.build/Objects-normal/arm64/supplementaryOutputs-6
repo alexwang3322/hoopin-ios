@@ -1,0 +1,23 @@
+{
+  "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/Models/JoinRequest.swift" : {
+    "const-values" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/JoinRequest.swiftconstvalues",
+    "dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/JoinRequest.d",
+    "diagnostics" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/JoinRequest.dia",
+    "object" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/JoinRequest.o",
+    "swift-dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/JoinRequest.swiftdeps"
+  },
+  "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/Services/MockData.swift" : {
+    "const-values" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/MockData.swiftconstvalues",
+    "dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/MockData.d",
+    "diagnostics" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/MockData.dia",
+    "object" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/MockData.o",
+    "swift-dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/MockData.swiftdeps"
+  },
+  "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/Views/Hosting/HostingView.swift" : {
+    "const-values" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/HostingView.swiftconstvalues",
+    "dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/HostingView.d",
+    "diagnostics" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/HostingView.dia",
+    "object" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/HostingView.o",
+    "swift-dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/HostingView.swiftdeps"
+  }
+}

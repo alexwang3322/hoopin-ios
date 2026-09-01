@@ -1,0 +1,23 @@
+{
+  "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/Services/RunStore.swift" : {
+    "const-values" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunStore.swiftconstvalues",
+    "dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunStore.d",
+    "diagnostics" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunStore.dia",
+    "object" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunStore.o",
+    "swift-dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunStore.swiftdeps"
+  },
+  "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/Views/Discover/RunCardView.swift" : {
+    "const-values" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunCardView.swiftconstvalues",
+    "dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunCardView.d",
+    "diagnostics" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunCardView.dia",
+    "object" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunCardView.o",
+    "swift-dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/RunCardView.swiftdeps"
+  },
+  "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/Views/Shared/StatusBadgeView.swift" : {
+    "const-values" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/StatusBadgeView.swiftconstvalues",
+    "dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/StatusBadgeView.d",
+    "diagnostics" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/StatusBadgeView.dia",
+    "object" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/StatusBadgeView.o",
+    "swift-dependencies" : "/Users/sheng/Documents/random/ai-backend-bb/mobile-ios/build_out/Build/Intermediates.noindex/PullUp.build/Debug-iphonesimulator/PullUp.build/Objects-normal/arm64/StatusBadgeView.swiftdeps"
+  }
+}

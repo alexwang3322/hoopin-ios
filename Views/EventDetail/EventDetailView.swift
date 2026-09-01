@@ -1,0 +1,265 @@
+import SwiftUI
+
+/// Event Detail. The web's two-column layout (main content + 320px sidebar) is reflowed into one
+/// scrolling column of stacked sections — the natural iOS equivalent once there's no room for
+/// side-by-side columns.
+struct EventDetailView: View {
+    let runId: String
+
+    @Environment(RunStore.self) private var store
+    @Environment(ToastCenter.self) private var toast
+    @Environment(\.navigate) private var navigate
+    @State private var requestMessage: String = ""
+
+    private var run: Run? { store.run(runId) }
+
+    var body: some View {
+        if let run {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    hero(for: run)
+                    titleBlock(for: run)
+                    if let host = store.profile(run.hostId) {
+                        PersonLinkView(user: host, subtitle: host.bio, avatarSize: 40)
+                    }
+                    Text(run.description)
+                        .font(.body)
+                        .foregroundStyle(Theme.textSecondary)
+
+                    if store.viewerAction(for: run) == .host {
+                        requestsSection(for: run)
+                    }
+
+                    capacityPanel(for: run)
+                    courtPanel(for: run)
+                    if !store.attendees(for: run).isEmpty {
+                        rosterPanel(for: run)
+                    }
+                    actionPanel(for: run)
+
+                    Text("Approve or decline above to see the roster update.")
+                        .font(.caption)
+                        .foregroundStyle(Theme.textTertiary)
+                }
+                .padding(16)
+            }
+            .background(Theme.background)
+            .navigationTitle(run.title)
+            .navigationBarTitleDisplayMode(.inline)
+        } else {
+            ContentUnavailableView("Run not found", systemImage: "questionmark.circle")
+        }
+    }
+
+    // MARK: Sections
+
+    private func hero(for run: Run) -> some View {
+        LinearGradient(colors: [Color(hex: run.gradientStartHex), Color(hex: run.gradientEndHex)],
+                        startPoint: .topLeading, endPoint: .bottomTrailing)
+            .frame(height: 180)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func titleBlock(for run: Run) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(run.title)
+                .font(.title2.weight(.bold))
+                .foregroundStyle(Theme.ink)
+            Text(RunFormatting.detailWhen(run))
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSecondary)
+        }
+    }
+
+    private func requestsSection(for run: Run) -> some View {
+        let pending = store.pendingRequests(for: run.id)
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Requests to play")
+                    .font(.headline)
+                if !pending.isEmpty {
+                    StatusBadgeView(text: "\(pending.count) pending", foreground: Theme.background,
+                                     background: Theme.ink, ring: Theme.ink)
+                }
+            }
+
+            if pending.isEmpty {
+                Text("No pending requests.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textTertiary)
+            } else {
+                ForEach(pending) { request in
+                    if let requester = store.profile(request.requesterId) {
+                        RequestCardView(
+                            request: request,
+                            requester: requester,
+                            onApprove: {
+                                if store.approve(requestId: request.id) {
+                                    toast.show("\(requester.name) approved to play")
+                                } else {
+                                    toast.show("This run is full.")
+                                }
+                            },
+                            onDecline: {
+                                store.decline(requestId: request.id, reason: nil)
+                                toast.show("\(requester.name)'s request declined")
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private func capacityPanel(for run: Run) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                if let capacity = run.capacity {
+                    Text("\(run.goingCount) going of \(capacity)")
+                        .font(.subheadline.weight(.medium))
+                } else {
+                    Text("\(run.goingCount) going")
+                        .font(.subheadline.weight(.medium))
+                }
+                Spacer()
+                if let badge = StatusBadgeView(viewerAction: store.viewerAction(for: run)) {
+                    badge
+                }
+            }
+            if run.capacity != nil {
+                ProgressView(value: run.capacityFraction)
+                    .tint(Theme.ink)
+            }
+        }
+        .padding(16)
+        .panelStyle()
+    }
+
+    private func courtPanel(for run: Run) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Court").font(.headline)
+            Text(run.venueName).font(.subheadline).foregroundStyle(Theme.ink)
+            if store.addressUnlocked(for: run) {
+                Text(run.exactAddress).font(.subheadline).foregroundStyle(Theme.textTertiary)
+            } else {
+                HStack(spacing: 8) {
+                    Text("🔒")
+                    Text("The exact address is shared once the host approves you.")
+                        .font(.system(size: 13.5))
+                        .foregroundStyle(Theme.textSecondary)
+                }
+                .padding(10)
+                .background(Theme.surfaceSecondary)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+        }
+        .padding(16)
+        .panelStyle()
+    }
+
+    private func rosterPanel(for run: Run) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Who's playing").font(.headline)
+            ForEach(store.attendees(for: run)) { attendee in
+                PersonLinkView(user: attendee, subtitle: attendee.bio)
+            }
+        }
+        .padding(16)
+        .panelStyle()
+    }
+
+    @ViewBuilder
+    private func actionPanel(for run: Run) -> some View {
+        switch store.viewerAction(for: run) {
+        case .canRequest:
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Tell the host a bit about your game (optional)")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Theme.textTertiary)
+                TextField("Say hello…", text: $requestMessage, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                Button("Request to play") {
+                    store.requestToJoin(runId: run.id, message: requestMessage)
+                    toast.show(store.viewerAction(for: run) == .approved
+                               ? "You're in — request auto-approved."
+                               : "Request sent.")
+                    requestMessage = ""
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Theme.accent)
+            }
+            .padding(16).panelStyle()
+
+        case .host:
+            Text("This is your run. You can't request to join your own game.")
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSecondary)
+                .padding(16).panelStyle()
+
+        case .approved:
+            VStack(alignment: .leading, spacing: 10) {
+                Text("You're in 🎉")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.Status.playingFg)
+                Button("Can't make it") {
+                    if let req = store.myJoinRequest(for: run.id) {
+                        store.withdraw(requestId: req.id)
+                        toast.show("You've backed out of \(run.title).")
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(16).panelStyle()
+
+        case .pending:
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Your request is waiting on the host.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textSecondary)
+                Button("Withdraw request") {
+                    if let req = store.myJoinRequest(for: run.id) {
+                        store.withdraw(requestId: req.id)
+                        toast.show("Request withdrawn.")
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(16).panelStyle()
+
+        case .declined:
+            VStack(alignment: .leading, spacing: 8) {
+                Text("The host declined this request.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textSecondary)
+                if let reason = store.myJoinRequest(for: run.id)?.declineReason {
+                    Text("Host said: \(reason)")
+                        .font(.system(size: 13.5))
+                        .foregroundStyle(Theme.Status.declinedFg)
+                        .padding(10)
+                        .background(Theme.Status.declinedBg)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+            .padding(16).panelStyle()
+
+        case .full:
+            Text("This run is full.")
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSecondary)
+                .padding(16).panelStyle()
+        }
+    }
+}
+
+private extension View {
+    func panelStyle() -> some View {
+        self
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Theme.border, lineWidth: 1)
+            )
+    }
+}

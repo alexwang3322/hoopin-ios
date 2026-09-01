@@ -1,0 +1,38 @@
+name: PullUp
+options:
+  bundleIdPrefix: com.pullup.demo
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    GENERATE_INFOPLIST_FILE: YES
+    INFOPLIST_KEY_UILaunchScreen_Generation: YES
+    INFOPLIST_KEY_CFBundleDisplayName: "Pull Up"
+    INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+    INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
+    TARGETED_DEVICE_FAMILY: "1"
+    ENABLE_PREVIEWS: YES
+targets:
+  PullUp:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+      - path: Models
+      - path: Services
+      - path: ViewModels
+      - path: Views
+      - path: Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pullup.demo.PullUp
+        PRODUCT_NAME: "Pull Up"
+schemes:
+  PullUp:
+    build:
+      targets:
+        PullUp: all
+    run:
+      config: Debug
