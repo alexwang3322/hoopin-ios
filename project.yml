@@ -8,7 +8,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     GENERATE_INFOPLIST_FILE: YES
-    INFOPLIST_KEY_UILaunchScreen_Generation: YES
+    INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
     INFOPLIST_KEY_CFBundleDisplayName: "Hoopin"
     INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
     INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
@@ -29,6 +29,12 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.hoopin.demo.Hoopin
         PRODUCT_NAME: "Hoopin"
+        # XcodeGen's default for application targets — actool now enforces
+        # this since Resources/Assets.xcassets exists (added for the launch
+        # screen), but no AppIcon set exists in it. No icon image asset
+        # exists in this project yet; adding one is a separate task from
+        # the launch screen fix this catalog was added for.
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
 schemes:
   Hoopin:
     build:
