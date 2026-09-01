@@ -74,6 +74,11 @@ struct RunCardView: View {
                                  background: Theme.Status.declinedBg, ring: Theme.Status.declinedRing)
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(10)
+            } else if !run.isDraft && run.isFinished {
+                StatusBadgeView(text: "Finished", foreground: Theme.textTertiary,
+                                 background: Theme.surfaceSecondary, ring: Theme.borderSecondary)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(10)
             } else if let badge = StatusBadgeView(viewerAction: action) {
                 badge
                     .frame(maxWidth: .infinity, alignment: .trailing)

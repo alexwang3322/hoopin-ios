@@ -49,4 +49,15 @@ struct Run: Identifiable, Hashable {
         guard let capacity else { return nil }
         return max(capacity - goingCount, 0)
     }
+
+    /// Deliberately not a stored/mock field — computed against the viewer's
+    /// own clock each time it's read, same as API_CONTRACT.md's client-side
+    /// "finished" derivation (see backend/src/db and frontend's
+    /// utils/time.ts's isRunFinished): a run is finished once its `endsAt`
+    /// is in the past, regardless of what any backend record says. A draft's
+    /// `endsAt` is a placeholder, not a real schedule, so drafts are never
+    /// "finished" here — callers should also check `!isDraft`.
+    var isFinished: Bool {
+        endsAt <= Date()
+    }
 }

@@ -37,6 +37,14 @@ struct HostingRowView: View {
                             .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Theme.Status.declinedRing))
                             .clipShape(RoundedRectangle(cornerRadius: 5))
                     }
+                    if !run.isDraft && !run.isCancelled && run.isFinished {
+                        Text("FINISHED")
+                            .font(.system(size: 9, weight: .semibold))
+                            .tracking(0.8)
+                            .foregroundStyle(Theme.textTertiary)
+                            .padding(.horizontal, 5).padding(.vertical, 1)
+                            .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Theme.borderSecondary))
+                    }
                 }
                 Text(metaText)
                     .font(.system(size: 14))

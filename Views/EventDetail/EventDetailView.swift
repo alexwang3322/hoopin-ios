@@ -21,6 +21,8 @@ struct EventDetailView: View {
                     hero(for: run)
                     if run.isCancelled {
                         cancelledBanner
+                    } else if run.isFinished {
+                        finishedBanner
                     }
                     titleBlock(for: run)
                     if let host = store.profile(run.hostId) {
@@ -30,7 +32,7 @@ struct EventDetailView: View {
                         .font(.body)
                         .foregroundStyle(Theme.textSecondary)
 
-                    if store.viewerAction(for: run) == .host && !run.isCancelled {
+                    if store.viewerAction(for: run) == .host && !run.isCancelled && !run.isFinished {
                         requestsSection(for: run)
                     }
 
@@ -39,7 +41,7 @@ struct EventDetailView: View {
                     if !store.attendees(for: run).isEmpty {
                         rosterPanel(for: run)
                     }
-                    if store.viewerAction(for: run) == .host && !run.isCancelled {
+                    if store.viewerAction(for: run) == .host && !run.isCancelled && !run.isFinished {
                         cancelButton(for: run)
                     }
                     actionPanel(for: run)
@@ -81,6 +83,16 @@ struct EventDetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
             .background(Theme.Status.declinedBg)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+
+    private var finishedBanner: some View {
+        Text("This run has finished.")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Theme.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(Theme.surfaceSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
@@ -161,7 +173,13 @@ struct EventDetailView: View {
                         .font(.subheadline.weight(.medium))
                 }
                 Spacer()
-                if let badge = StatusBadgeView(viewerAction: store.viewerAction(for: run)) {
+                if run.isCancelled {
+                    StatusBadgeView(text: "Cancelled", foreground: Theme.Status.declinedFg,
+                                     background: Theme.Status.declinedBg, ring: Theme.Status.declinedRing)
+                } else if run.isFinished {
+                    StatusBadgeView(text: "Finished", foreground: Theme.textTertiary,
+                                     background: Theme.surfaceSecondary, ring: Theme.borderSecondary)
+                } else if let badge = StatusBadgeView(viewerAction: store.viewerAction(for: run)) {
                     badge
                 }
             }
@@ -211,6 +229,11 @@ struct EventDetailView: View {
     private func actionPanel(for run: Run) -> some View {
         if run.isCancelled {
             Text("This run has been cancelled — no further requests can be made.")
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSecondary)
+                .padding(16).panelStyle()
+        } else if run.isFinished {
+            Text("This run has finished — no further requests can be made.")
                 .font(.subheadline)
                 .foregroundStyle(Theme.textSecondary)
                 .padding(16).panelStyle()
