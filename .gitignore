@@ -1,0 +1,47 @@
+# Xcode build output (DerivedData-style, see mobile-ios/CLAUDE.md notes)
+build_out/
+
+## Xcode user-specific state
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+## Xcode project internals (keep the shareable parts)
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/xcshareddata/
+/*.gcno
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+## Obj-C/Swift specific
+*.hmap
+
+## App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+## Swift Package Manager
+.build/
+.swiftpm/
+
+## CocoaPods
+Pods/
+
+## Carthage
+Carthage/Build/
+
+## fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+## macOS
+.DS_Store
