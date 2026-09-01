@@ -126,24 +126,40 @@ final class RunStore {
     // request", "Can't make it") with no click handler wired up in the original JS — dead UI.
     // They're fully implemented here.
 
+    /// Requesting again after a withdraw/decline resets that same row in place (same `id`)
+    /// instead of appending a new one — matching API_CONTRACT.md §2's JoinRequest note: at most
+    /// one row ever per (run, requester), so "My Runs" is one row per game, not one per attempt.
     @discardableResult
     func requestToJoin(runId: String, message: String?) -> Bool {
         guard let runIdx = runs.firstIndex(where: { $0.id == runId }) else { return false }
         guard runs[runIdx].hostId != currentUserId else { return false }
-        guard myJoinRequest(for: runId) == nil else { return false }
 
         let autoApprove = runs[runIdx].autoApprove && !runs[runIdx].isFull
-        let request = JoinRequest(
-            id: "req_\(UUID().uuidString.prefix(8))",
-            runId: runId,
-            requesterId: currentUserId,
-            message: message?.isEmpty == false ? message : nil,
-            status: autoApprove ? .approved : .pending,
-            createdAt: Date(),
-            decidedAt: autoApprove ? Date() : nil,
-            declineReason: nil
-        )
-        joinRequests.append(request)
+        let newStatus: JoinRequestStatus = autoApprove ? .approved : .pending
+        let trimmedMessage = message?.isEmpty == false ? message : nil
+
+        if let existingIdx = joinRequests.firstIndex(where: { $0.runId == runId && $0.requesterId == currentUserId }) {
+            guard joinRequests[existingIdx].status == .withdrawn || joinRequests[existingIdx].status == .declined else {
+                return false // already active — nothing to (re)request
+            }
+            joinRequests[existingIdx].status = newStatus
+            joinRequests[existingIdx].message = trimmedMessage
+            joinRequests[existingIdx].declineReason = nil
+            joinRequests[existingIdx].createdAt = Date()
+            joinRequests[existingIdx].decidedAt = autoApprove ? Date() : nil
+        } else {
+            let request = JoinRequest(
+                id: "req_\(UUID().uuidString.prefix(8))",
+                runId: runId,
+                requesterId: currentUserId,
+                message: trimmedMessage,
+                status: newStatus,
+                createdAt: Date(),
+                decidedAt: autoApprove ? Date() : nil,
+                declineReason: nil
+            )
+            joinRequests.append(request)
+        }
 
         if autoApprove {
             runs[runIdx].goingCount += 1
