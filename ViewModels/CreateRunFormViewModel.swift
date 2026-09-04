@@ -4,8 +4,8 @@ import Observation
 /// The Create/"Host a run" form's field values, decoupled from `Run` so half-filled draft state
 /// (blank venue/address/capacity) is representable without optionals leaking into the read model.
 struct CreateRunFormValues {
-    var title: String = "Thursday Night Full Court"
-    var description: String = "Casual full-court run, all levels welcome. Bring a light and dark shirt — we split teams by colour."
+    var title: String = ""
+    var description: String = ""
     var date: Date = Date()
     var startTime: Date = Date()
     var endTime: Date = Date()
