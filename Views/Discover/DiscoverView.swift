@@ -11,8 +11,15 @@ struct DiscoverView: View {
     @State private var showingCreate = false
     /// Defaults to San Diego, matching the web's default.
     @State private var selectedCity: City = .sd
+    @State private var showingDatePicker = false
 
     private let columns = [GridItem(.adaptive(minimum: 300), spacing: 20)]
+
+    private var fromDateLabel: String {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        return f.string(from: filters.fromDate)
+    }
 
     /// The API filters by city/format server-side; "from date" has no query param
     /// (API_CONTRACT.md §6 only lists city/format), so it's applied client-side here, same as
@@ -33,13 +40,21 @@ struct DiscoverView: View {
                     .pickerStyle(.menu)
 
                     // Visible inline, matching the web's always-shown "From date" field —
-                    // Game type stays in the filter sheet (⋯ toolbar icon) alongside it.
-                    HStack(spacing: 6) {
-                        Text("From")
-                            .font(.subheadline)
-                            .foregroundStyle(Theme.textSecondary)
+                    // Game type stays in the filter sheet (⋯ toolbar icon) alongside it. A plain
+                    // Button (rather than DatePicker's own .compact style, which always draws its
+                    // own gray pill background) so this reads as plain accent-colored text, same
+                    // as the City picker above.
+                    Button {
+                        showingDatePicker = true
+                    } label: {
+                        Text(fromDateLabel)
+                    }
+                    .popover(isPresented: $showingDatePicker) {
                         DatePicker("From date", selection: $filters.fromDate, displayedComponents: .date)
+                            .datePickerStyle(.graphical)
                             .labelsHidden()
+                            .padding()
+                            .presentationCompactAdaptation(.popover)
                     }
                 }
                 .padding(.horizontal, 16)
