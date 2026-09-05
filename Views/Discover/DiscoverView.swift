@@ -50,9 +50,13 @@ struct DiscoverView: View {
                         Text(fromDateLabel)
                     }
                     .popover(isPresented: $showingDatePicker) {
+                        // .graphical has no intrinsic width of its own — left unconstrained in a
+                        // popover it collapses to a single narrow column of day numbers instead of
+                        // the full calendar grid, so it needs an explicit width here.
                         DatePicker("From date", selection: $filters.fromDate, displayedComponents: .date)
                             .datePickerStyle(.graphical)
                             .labelsHidden()
+                            .frame(width: 320)
                             .padding()
                             .presentationCompactAdaptation(.popover)
                     }
