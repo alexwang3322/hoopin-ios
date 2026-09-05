@@ -45,3 +45,6 @@ fastlane/test_output
 
 ## macOS
 .DS_Store
+
+## Clerk publishable key — see App/Config.example.swift
+App/Config.swift

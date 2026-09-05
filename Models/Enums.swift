@@ -37,14 +37,27 @@ enum RunVisibility: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+/// Case declaration order is display order everywhere this backs a picker
+/// (Discover's city filter, Host-a-run's city field, Account's location
+/// field) — matches frontend/src/models/Run.ts's `CITY_LABEL` map order.
 enum City: String, Codable, CaseIterable, Identifiable {
+    case sd = "SD"
+    case sj = "SJ"
     case sf = "SF"
+    case nyc = "NYC"
     case oak = "OAK"
 
     var id: String { rawValue }
 
-    /// Cosmetic segmented control in the original prototype — never actually filters the feed.
-    var label: String { rawValue }
+    var label: String {
+        switch self {
+        case .sd: return "San Diego"
+        case .sj: return "San Jose"
+        case .sf: return "San Francisco"
+        case .nyc: return "New York City"
+        case .oak: return "Oakland"
+        }
+    }
 }
 
 /// The 7-branch action-panel state machine from Event Detail's sidebar (API_CONTRACT.md `ViewerAction`),
@@ -85,9 +98,3 @@ enum PlayerPosition: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-enum AccountLocation: String, Codable, CaseIterable, Identifiable {
-    case sanFrancisco = "San Francisco"
-    case oakland = "Oakland"
-
-    var id: String { rawValue }
-}

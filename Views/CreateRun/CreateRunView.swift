@@ -48,6 +48,11 @@ struct CreateRunView: View {
                 Section {
                     TextField("Court name", text: $viewModel.values.venueName)
                     TextField("Exact address", text: $viewModel.values.exactAddress)
+                    Picker("City", selection: $viewModel.values.city) {
+                        ForEach(City.allCases) { city in
+                            Text(city.label).tag(city)
+                        }
+                    }
                 } header: {
                     Text("Location")
                 } footer: {

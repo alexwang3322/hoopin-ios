@@ -13,6 +13,7 @@ struct CreateRunFormValues {
     var format: RunFormat = .fiveVFiveFullCourt
     var venueName: String = ""
     var exactAddress: String = ""
+    var city: City = .sf
     var capacityText: String = "10"
     var visibility: RunVisibility = .publicVisibility
     var autoApprove: Bool = true
@@ -53,7 +54,7 @@ struct CreateRunFormValues {
             format: format,
             venueName: trimmedVenue.isEmpty ? "Venue TBD" : trimmedVenue,
             exactAddress: exactAddress,
-            city: .sf,
+            city: city,
             hostId: hostId,
             capacity: capacity,
             goingCount: existingGoingCount,
@@ -79,6 +80,7 @@ struct CreateRunFormValues {
         values.format = run.format
         values.venueName = run.venueName
         values.exactAddress = run.exactAddress
+        values.city = run.city
         values.capacityText = run.capacity.map(String.init) ?? ""
         values.visibility = run.visibility
         values.autoApprove = run.autoApprove

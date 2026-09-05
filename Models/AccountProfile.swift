@@ -4,7 +4,7 @@ import Foundation
 /// API_CONTRACT.md's `UserSummary` — this wraps the shared `UserSummary` with those app-local extras.
 struct AccountProfile: Hashable {
     var user: UserSummary
-    var location: AccountLocation
+    var location: City
     var gender: Gender
     var position: PlayerPosition
 }

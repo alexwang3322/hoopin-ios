@@ -14,17 +14,28 @@ settings:
     INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
     TARGETED_DEVICE_FAMILY: "1"
     ENABLE_PREVIEWS: YES
+packages:
+  Clerk:
+    url: https://github.com/clerk/clerk-ios
+    from: 1.3.6
 targets:
   Hoopin:
     type: application
     platform: iOS
     sources:
       - path: App
+        excludes:
+          - Config.example.swift
       - path: Models
       - path: Services
       - path: ViewModels
       - path: Views
       - path: Resources
+    dependencies:
+      - package: Clerk
+        product: ClerkKit
+      - package: Clerk
+        product: ClerkKitUI
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.hoopin.demo.Hoopin

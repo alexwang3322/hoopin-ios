@@ -14,6 +14,11 @@ enum AppRoute: Hashable {
     case runDetail(String)
     case profile(String)
     case disclaimer
+    case terms
+    case privacy
+    case security
+    case dmca
+    case about
 }
 
 /// Owns which tab is selected. Screens switch tabs directly (e.g. tapping your own avatar routes

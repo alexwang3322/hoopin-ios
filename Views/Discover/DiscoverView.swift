@@ -5,8 +5,9 @@ struct DiscoverView: View {
     @State private var filters = DiscoverFilterViewModel()
     @State private var showingFilters = false
     @State private var showingCreate = false
-    /// Cosmetic only, exactly like the web's SF/OAK segmented control — it never filters the feed.
-    @State private var selectedCity: City = .sf
+    /// Cosmetic only, matching the web's city filter's non-functional history at this point in
+    /// the port — it never filters the feed. Defaults to San Diego, matching the web's default.
+    @State private var selectedCity: City = .sd
 
     private let columns = [GridItem(.adaptive(minimum: 300), spacing: 20)]
 
@@ -22,8 +23,7 @@ struct DiscoverView: View {
                         Text(city.label).tag(city)
                     }
                 }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 220)
+                .pickerStyle(.menu)
                 .padding(.horizontal, 16)
 
                 if visibleRuns.isEmpty {

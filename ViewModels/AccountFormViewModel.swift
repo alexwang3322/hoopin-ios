@@ -8,7 +8,7 @@ import Observation
 final class AccountFormViewModel {
     var name: String
     var bio: String
-    var location: AccountLocation
+    var location: City
     var gender: Gender
     var position: PlayerPosition
 
@@ -20,7 +20,9 @@ final class AccountFormViewModel {
         position = profile.position
     }
 
-    private func initials(from name: String) -> String {
+    var displayInitials: String { initials(from: name) }
+
+    func initials(from name: String) -> String {
         let parts = name.trimmingCharacters(in: .whitespacesAndNewlines)
             .split(separator: " ")
             .filter { !$0.isEmpty }
@@ -33,7 +35,7 @@ final class AccountFormViewModel {
 
     func save(in store: RunStore) {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let finalName = trimmedName.isEmpty ? "Jamie Tran" : trimmedName
+        let finalName = trimmedName.isEmpty ? "Hooper" : trimmedName
         var user = store.currentUser
         user.name = finalName
         user.initials = initials(from: finalName)

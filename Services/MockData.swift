@@ -157,7 +157,7 @@ enum MockData {
 
     static let currentAccount = AccountProfile(
         user: profiles.first { $0.id == currentUserId }!,
-        location: .sanFrancisco,
+        location: .sd,
         gender: .preferNotToSay,
         position: .flexible
     )
