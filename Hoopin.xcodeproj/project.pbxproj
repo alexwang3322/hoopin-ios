@@ -16,6 +16,7 @@
 		1FADE65E6A79E5FD4D87E051 /* RunStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95206E897D51819AAFC80A /* RunStore.swift */; };
 		2158B897B37C8DC398CF656D /* DiscoverFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71179399DEB7F6E71C49BD1B /* DiscoverFilterViewModel.swift */; };
 		25BA56A081C3B18FFDEEBB16 /* Run.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EF17D79AFA17E009372836 /* Run.swift */; };
+		2DB4AF894AD69BCB621FC43B /* AccountTabRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF79181A7F56A8E84E6C8A8A /* AccountTabRootView.swift */; };
 		2E3E925FA065134CA09CE98F /* PersonLinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111B08598C643D0DE5767D7A /* PersonLinkView.swift */; };
 		36E6D0FFB0AF61F3B27B96E2 /* ToastCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B27B91F243FFE98AF55D268 /* ToastCenter.swift */; };
 		3A298BF968CB8F285CCB6417 /* NavigateAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5BE1B07B4FF000EFD8C489 /* NavigateAction.swift */; };
@@ -29,7 +30,6 @@
 		53AA7281A2019C7934F1B818 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDA6B35AAD53F0F2B543BAD /* ProfileView.swift */; };
 		582E1E26E4E3DA3560780AF4 /* HoopinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BDDA3BA5B8306E9C7573741 /* HoopinApp.swift */; };
 		60E2837C8822683A1295182F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8362EA587C836E1C9A20D7F /* User.swift */; };
-		6FE5C31146C7F001D92CBEC3 /* AuthGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03551923ADD6D4317E389073 /* AuthGateView.swift */; };
 		7084B7A0471B22602467F941 /* RequestCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B90EE7A7823C8984F70BB25 /* RequestCardView.swift */; };
 		8D2B722C4096E5AFA4829EAC /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05330C74F7B7E2F131F2E2D7 /* Config.swift */; };
 		9517C158A8047BA8B4C2D5DF /* DisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEC7140171A0CB24D6E6A6 /* DisclaimerView.swift */; };
@@ -56,7 +56,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		03551923ADD6D4317E389073 /* AuthGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthGateView.swift; sourceTree = "<group>"; };
 		05330C74F7B7E2F131F2E2D7 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		05889CC94B285782B3F6F3B4 /* AccountProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProfile.swift; sourceTree = "<group>"; };
 		0824CF0DCE7517585E8F9AD9 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
@@ -101,6 +100,7 @@
 		DCFEC7140171A0CB24D6E6A6 /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
 		E8362EA587C836E1C9A20D7F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		F66C8664FA580E70F3C095E7 /* HostingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostingView.swift; sourceTree = "<group>"; };
+		FF79181A7F56A8E84E6C8A8A /* AccountTabRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTabRootView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +187,7 @@
 		4E13216FCFEB222E62283406 /* Account */ = {
 			isa = PBXGroup;
 			children = (
+				FF79181A7F56A8E84E6C8A8A /* AccountTabRootView.swift */,
 				0824CF0DCE7517585E8F9AD9 /* AccountView.swift */,
 			);
 			path = Account;
@@ -296,7 +297,6 @@
 		D802E0C0E1F39ACCD96CBD2D /* App */ = {
 			isa = PBXGroup;
 			children = (
-				03551923ADD6D4317E389073 /* AuthGateView.swift */,
 				05330C74F7B7E2F131F2E2D7 /* Config.swift */,
 				1BDDA3BA5B8306E9C7573741 /* HoopinApp.swift */,
 				91D669C0A0EB309EF2407B03 /* RootView.swift */,
@@ -412,9 +412,9 @@
 				D57A8F2B449380DE43AEED01 /* AboutView.swift in Sources */,
 				E77FA7A8AC71ACFA68F625B2 /* AccountFormViewModel.swift in Sources */,
 				BC1FF31C3E990D69EC282E41 /* AccountProfile.swift in Sources */,
+				2DB4AF894AD69BCB621FC43B /* AccountTabRootView.swift in Sources */,
 				485030BDDA1FD8E53C198419 /* AccountView.swift in Sources */,
 				9FFCFF7FAD2BAC8ECE0C0B93 /* AppRouter.swift in Sources */,
-				6FE5C31146C7F001D92CBEC3 /* AuthGateView.swift in Sources */,
 				3C35116A5F402D9B003B3780 /* AvatarView.swift in Sources */,
 				8D2B722C4096E5AFA4829EAC /* Config.swift in Sources */,
 				D3ED12A2FC482C7BF68C034F /* CreateRunFormViewModel.swift in Sources */,

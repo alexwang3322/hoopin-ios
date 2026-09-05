@@ -9,7 +9,7 @@ struct HoopinApp: App {
 
     var body: some Scene {
         WindowGroup {
-            AuthGateView()
+            RootView()
                 .environment(Clerk.shared)
         }
     }

@@ -44,7 +44,7 @@ struct RootView: View {
                 .badge(store.headerCounts.hostingPendingRequests)
                 .tag(AppTab.hosting)
 
-            TabRootStack { AccountView() }
+            TabRootStack { AccountTabRootView() }
                 .tabItem { Label("Account", systemImage: "person.crop.circle") }
                 .tag(AppTab.account)
         }
