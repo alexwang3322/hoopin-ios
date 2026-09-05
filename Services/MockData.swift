@@ -112,6 +112,19 @@ enum MockData {
             distanceMiles: 4.0, gradientStartHex: "6B4C7A", gradientEndHex: "241830",
             createdAt: date(2026, 8, 25, 9, 0)),
 
+        // Same story as backend/'s seed data (backend/src/db/seedData.ts's ev_doyle_outdoor) —
+        // gives the Discover default (San Diego) a real run to show instead of an empty list.
+        Run(id: "ev_doyle_outdoor", title: "Doyle Rec Center Outdoor Run",
+            description: "Full-court run on Doyle's outdoor court. First-come, next-basket-wins, bring water — no shade on this one.",
+            startsAt: date(2026, 9, 14, 9, 0), endsAt: date(2026, 9, 14, 11, 0),
+            timezoneID: "America/Los_Angeles", format: .fiveVFiveFullCourt,
+            venueName: "Doyle Recreation Center (Outdoor), San Diego",
+            exactAddress: "8175 Regents Rd, San Diego, CA 92122",
+            city: .sd, hostId: "u_kai", capacity: 10, goingCount: 0, isDraft: false,
+            visibility: .publicVisibility, autoApprove: false, attendeeIds: [],
+            distanceMiles: 0.8, gradientStartHex: "C98A43", gradientEndHex: "5A3A1A",
+            createdAt: date(2026, 8, 27, 9, 0)),
+
         // Draft, never published — matches the web's `loadDraftIntoForm()` fixture. Several
         // fields are intentionally blank, exactly as the draft form leaves them.
         Run(id: "ev_sunday_skills_draft", title: "Sunday Skills Clinic",

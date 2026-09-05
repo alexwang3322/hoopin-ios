@@ -5,14 +5,13 @@ struct DiscoverView: View {
     @State private var filters = DiscoverFilterViewModel()
     @State private var showingFilters = false
     @State private var showingCreate = false
-    /// Cosmetic only, matching the web's city filter's non-functional history at this point in
-    /// the port — it never filters the feed. Defaults to San Diego, matching the web's default.
+    /// Defaults to San Diego, matching the web's default.
     @State private var selectedCity: City = .sd
 
     private let columns = [GridItem(.adaptive(minimum: 300), spacing: 20)]
 
     private var visibleRuns: [Run] {
-        store.discoverRuns.filter { filters.matches($0) }
+        store.discoverRuns.filter { $0.city == selectedCity && filters.matches($0) }
     }
 
     var body: some View {

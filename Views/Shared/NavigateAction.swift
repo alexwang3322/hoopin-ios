@@ -28,18 +28,6 @@ struct AppRouteDestinationView: View {
             EventDetailView(runId: id)
         case .profile(let id):
             ProfileView(userId: id)
-        case .disclaimer:
-            DisclaimerView()
-        case .terms:
-            TermsView()
-        case .privacy:
-            PrivacyView()
-        case .security:
-            SecurityView()
-        case .dmca:
-            DmcaView()
-        case .about:
-            AboutView()
         }
     }
 }
