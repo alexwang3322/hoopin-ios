@@ -28,6 +28,8 @@ struct AppRouteDestinationView: View {
             EventDetailView(runId: id)
         case .profile(let id):
             ProfileView(userId: id)
+        case .liveRunDetail(let id):
+            LiveEventDetailView(runId: id)
         }
     }
 }
