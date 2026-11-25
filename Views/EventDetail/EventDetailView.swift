@@ -191,7 +191,21 @@ struct EventDetailView: View {
         .padding(16)
         .panelStyle()
     }
-
+    
+    func openInMaps(address : String) {
+        let encodedAddress = address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        
+        let appleMapsURL = URL(string: "maps://?q=\(encodedAddress)")!
+        let googleMapsURL = URL(string: "comgooglemaps://?q=\(encodedAddress)")!
+        
+        // Check if Google Maps is installed, otherwise fallback to Apple Maps
+        if UIApplication.shared.canOpenURL(googleMapsURL) {
+            UIApplication.shared.open(googleMapsURL)
+        } else {
+            UIApplication.shared.open(appleMapsURL)
+        }
+    }
+    
     private func courtPanel(for run: Run) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Court").font(.headline)
@@ -212,6 +226,9 @@ struct EventDetailView: View {
         }
         .padding(16)
         .panelStyle()
+        .onTapGesture {
+            openInMaps(address: run.exactAddress)
+        }
     }
 
     private func rosterPanel(for run: Run) -> some View {

@@ -172,6 +172,20 @@ struct LiveEventDetailView: View {
         .padding(16)
         .panelStyle()
     }
+    
+    func openInMaps(address : String) {
+        let encodedAddress = address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        
+        let appleMapsURL = URL(string: "maps://?q=\(encodedAddress)")!
+        let googleMapsURL = URL(string: "comgooglemaps://?q=\(encodedAddress)")!
+        
+        // Check if Google Maps is installed, otherwise fallback to Apple Maps
+        if UIApplication.shared.canOpenURL(googleMapsURL) {
+            UIApplication.shared.open(googleMapsURL)
+        } else {
+            UIApplication.shared.open(appleMapsURL)
+        }
+    }
 
     private func courtPanel(for run: LiveRunDetail) -> some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -192,6 +206,11 @@ struct LiveEventDetailView: View {
                 .background(Theme.surfaceSecondary)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
+        }
+        .onTapGesture {
+            if let address = run.exactAddress {
+                openInMaps(address: address)
+            }            
         }
         .padding(16)
         .panelStyle()

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0341081D1FA629015CBAD17B /* CreateRunView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 114557ABA0D41EE272ED3188 /* CreateRunView.swift */; };
+		0475D847305E564E007D9647 /* MapTextBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0475D846305E5646007D9647 /* MapTextBottomSheet.swift */; };
 		0C347B174157F6A67E8110FA /* ColorHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB53B70BDE60005CC0B619B /* ColorHash.swift */; };
 		0FE5B5217217560DB7C2A1C3 /* LiveDiscoverViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E938C4C104C5B2E5B92C5CAB /* LiveDiscoverViewModel.swift */; };
 		1247369481241DA2666C9817 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A877332895D4281B225C79E9 /* Theme.swift */; };
@@ -58,6 +59,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0475D846305E5646007D9647 /* MapTextBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = text; path = MapTextBottomSheet.swift; sourceTree = "<group>"; };
 		05330C74F7B7E2F131F2E2D7 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		05889CC94B285782B3F6F3B4 /* AccountProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProfile.swift; sourceTree = "<group>"; };
 		0824CF0DCE7517585E8F9AD9 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
@@ -91,7 +93,7 @@
 		B5EF17D79AFA17E009372836 /* Run.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Run.swift; sourceTree = "<group>"; };
 		BB95206E897D51819AAFC80A /* RunStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunStore.swift; sourceTree = "<group>"; };
 		BF295B866BCCFA1F56907D6B /* LiveMappers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveMappers.swift; sourceTree = "<group>"; };
-		C1398CEF1BE52C9630156155 /* Hoopin.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Hoopin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1398CEF1BE52C9630156155 /* Hoopin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hoopin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C809FECEB2960447B87F2568 /* LiveRunCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveRunCardView.swift; sourceTree = "<group>"; };
 		C9B1DCEF904A1567AC41A347 /* RunCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunCardView.swift; sourceTree = "<group>"; };
 		CAC401F6CC442A36BC9F3358 /* LiveApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveApiClient.swift; sourceTree = "<group>"; };
@@ -255,6 +257,7 @@
 				5A66B9E4932B7CB2B977CC6E /* EventDetailView.swift */,
 				A35C7ADAA12EDDCB69627614 /* LiveEventDetailView.swift */,
 				2B90EE7A7823C8984F70BB25 /* RequestCardView.swift */,
+				0475D846305E5646007D9647 /* MapTextBottomSheet.swift */,
 			);
 			path = EventDetail;
 			sourceTree = "<group>";
@@ -333,8 +336,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 1AFA18F56AFFBB67808FBA2D /* Build configuration list for PBXProject "Hoopin" */;
 			developmentRegion = en;
@@ -392,6 +393,7 @@
 				FF0C511EB6F5A92316A98BB4 /* EventDetailView.swift in Sources */,
 				9661829B07626A0A97353DAE /* Formatting.swift in Sources */,
 				582E1E26E4E3DA3560780AF4 /* HoopinApp.swift in Sources */,
+				0475D847305E564E007D9647 /* MapTextBottomSheet.swift in Sources */,
 				CAD3F2328E14D08DBC7156F4 /* HostingRowView.swift in Sources */,
 				AF35D4DB3D28E7812B1B260A /* HostingView.swift in Sources */,
 				1449BD04C4FC604AD7655D69 /* JoinRequest.swift in Sources */,
@@ -430,6 +432,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = A6G522ZVRC;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -446,6 +449,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = A6G522ZVRC;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
