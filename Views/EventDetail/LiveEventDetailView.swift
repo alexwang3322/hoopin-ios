@@ -1,4 +1,5 @@
 import SwiftUI
+import ClerkKit
 
 /// Read-only detail for a backend-sourced run — a separate view from `EventDetailView` (mock),
 /// which is tightly coupled to `RunStore`'s mock-specific lookups (`viewerAction(for:)`,
@@ -10,13 +11,20 @@ import SwiftUI
 struct LiveEventDetailView: View {
     let runId: String
 
+    @Environment(Clerk.self) private var clerk
     @State private var detail: LiveRunDetail?
     @State private var isLoading = true
     @State private var errorMessage: String?
+    @State private var loadedViewerKey: String?
+
+    private var viewerKey: String { clerk.user?.id ?? "guest" }
 
     var body: some View {
         Group {
-            if let detail {
+            if loadedViewerKey != viewerKey {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let detail {
                 content(for: detail)
             } else if isLoading {
                 ProgressView()
@@ -27,17 +35,23 @@ struct LiveEventDetailView: View {
         }
         .background(Theme.background)
         .navigationBarTitleDisplayMode(.inline)
-        .task { await load() }
+        .task(id: viewerKey) { await load() }
     }
 
     private func load() async {
+        let requestedViewerKey = viewerKey
+        detail = nil
+        loadedViewerKey = nil
         isLoading = true
         do {
             let wire = try await LiveApiClient.getRun(id: runId)
+            guard !Task.isCancelled, viewerKey == requestedViewerKey else { return }
             detail = LiveMappers.toLiveRunDetail(wire)
         } catch {
+            guard !Task.isCancelled, viewerKey == requestedViewerKey else { return }
             errorMessage = "Couldn't load this run."
         }
+        loadedViewerKey = requestedViewerKey
         isLoading = false
     }
 

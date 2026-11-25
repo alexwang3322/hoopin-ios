@@ -1,7 +1,7 @@
 import Foundation
 import ClerkKit
 
-/// Thin, read-only client for the two endpoints wired so far (GET /runs, GET /runs/{id}) —
+/// Thin, read-only client for the endpoints wired so far —
 /// mirrors frontend/src/services/apiClient.ts's shape (one function per contract endpoint,
 /// typed against wire DTOs), not the full contract. Points at the deployed backend directly
 /// (mobile-ios has no local-dev env-var mechanism like frontend/'s .env.local yet).
@@ -66,5 +66,36 @@ enum LiveApiClient {
     static func getRun(id: String) async throws -> WireRunDetail {
         let request = await authorizedRequest(path: "runs/\(id)")
         return try await send(request, as: WireRunDetail.self)
+    }
+
+    static func getUser(id: String) async throws -> WireUserSummary {
+        let request = URLRequest(url: baseURL.appendingPathComponent("users/\(id)"))
+        return try await send(request, as: WireUserSummary.self)
+    }
+
+    static func getMyRequests() async throws -> [WireJoinRequestWithRun] {
+        var items: [WireJoinRequestWithRun] = []
+        var cursor: String?
+        repeat {
+            let query = cursor.map { [URLQueryItem(name: "cursor", value: $0)] } ?? []
+            let request = await authorizedRequest(path: "me/requests", query: query)
+            let page = try await send(request, as: WireCursorPage<WireJoinRequestWithRun>.self)
+            items.append(contentsOf: page.items)
+            cursor = page.nextCursor
+        } while cursor != nil
+        return items
+    }
+
+    static func getHosting() async throws -> [WireRunSummary] {
+        var items: [WireRunSummary] = []
+        var cursor: String?
+        repeat {
+            let query = cursor.map { [URLQueryItem(name: "cursor", value: $0)] } ?? []
+            let request = await authorizedRequest(path: "me/hosting", query: query)
+            let page = try await send(request, as: WireCursorPage<WireRunSummary>.self)
+            items.append(contentsOf: page.items)
+            cursor = page.nextCursor
+        } while cursor != nil
+        return items
     }
 }

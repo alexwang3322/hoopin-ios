@@ -2,15 +2,14 @@ import SwiftUI
 import ClerkKit
 import ClerkKitUI
 
-/// Discover/My Runs/Hosting are all freely browsable as a guest — only the Account tab itself
-/// requires a real Clerk session, since it's the one screen that's actually about "you" as a
-/// real, signed-in person (see AccountView's note on seeding from the real Clerk user).
+/// Discover is public. My Runs and Hosting prompt guests to sign in; Account also requires a
+/// session before showing personal content.
 struct AccountTabRootView: View {
     @Environment(Clerk.self) private var clerk
 
     var body: some View {
-        if clerk.user != nil {
-            AccountView()
+        if let user = clerk.user {
+            AccountView().id(user.id)
         } else {
             AccountSignInPromptView()
         }
@@ -42,7 +41,9 @@ private struct AccountSignInPromptView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.background)
         .navigationTitle("Account")
-        .onAppear { authIsPresented = true }
+        .onAppear {
+            if router.selectedTab == .account { authIsPresented = true }
+        }
         .sheet(isPresented: $authIsPresented, onDismiss: returnHomeIfStillSignedOut) {
             AuthView()
         }

@@ -1,4 +1,6 @@
 import SwiftUI
+import ClerkKit
+import ClerkKitUI
 
 /// The "Host a run" form, reinterpreted as a sectioned native `Form` inside a sheet rather than
 /// the web's single scrolling column. Section grouping mirrors the web's field order: Basics,
@@ -7,9 +9,11 @@ struct CreateRunView: View {
     @Bindable var viewModel: CreateRunFormViewModel
 
     @Environment(RunStore.self) private var store
+    @Environment(Clerk.self) private var clerk
     @Environment(ToastCenter.self) private var toast
     @Environment(AppRouter.self) private var router
     @Environment(\.dismiss) private var dismiss
+    @State private var showingSignIn = false
 
     var body: some View {
         NavigationStack {
@@ -77,6 +81,10 @@ struct CreateRunView: View {
 
                 Section {
                     Button("Save as draft") {
+                        guard clerk.user != nil else {
+                            showingSignIn = true
+                            return
+                        }
                         viewModel.saveDraft(in: store)
                         toast.show("\(viewModel.values.title) saved as draft.")
                         dismiss()
@@ -91,6 +99,10 @@ struct CreateRunView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Publish") {
+                        guard clerk.user != nil else {
+                            showingSignIn = true
+                            return
+                        }
                         let title = viewModel.values.title.trimmingCharacters(in: .whitespacesAndNewlines)
                         viewModel.publish(in: store)
                         router.selectedTab = .hosting
@@ -101,5 +113,6 @@ struct CreateRunView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingSignIn) { AuthView() }
     }
 }

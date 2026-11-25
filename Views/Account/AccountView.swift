@@ -6,15 +6,19 @@ import ClerkKit
 /// out, and small gray links out to the web app's legal/info pages (About/Terms/Privacy/Security/
 /// Disclaimer live natively on the web now, not duplicated here — see AccountTabRootView.swift's
 /// note). Reinterpreted as a native `Form` instead of the web's centered card layout. Reachable
-/// only while signed in (AccountTabRootView gates just this tab), so `formVM.name` seeds from the
-/// real Clerk user, not the mock "Jamie Tran" story RunStore's hosting/join-request logic still
-/// runs on independently.
+/// only while signed in (AccountTabRootView gates just this tab). Profile editing is still local
+/// mock state until the backend supports it.
 struct AccountView: View {
     @Environment(RunStore.self) private var store
     @Environment(ToastCenter.self) private var toast
     @Environment(Clerk.self) private var clerk
+    @Environment(AppRouter.self) private var router
 
-    @State private var formVM = AccountFormViewModel(profile: MockData.currentAccount)
+    @State private var formVM = AccountFormViewModel(profile: AccountProfile(
+        user: UserSummary(id: "", name: "", initials: "", bio: nil, avatarColorHex: ""),
+        location: .sd, gender: .preferNotToSay, position: .flexible
+    ))
+    @State private var seededUserId: String?
 
     var body: some View {
         Form {
@@ -22,7 +26,8 @@ struct AccountView: View {
                 HStack {
                     Spacer()
                     AvatarView(initials: formVM.displayInitials,
-                               colorHex: store.currentUser.avatarColorHex, size: 72, fontSize: 26)
+                               colorHex: ColorHash.avatarColorHex(for: clerk.user?.id ?? ""),
+                               size: 72, fontSize: 26)
                     Spacer()
                 }
                 .listRowBackground(Color.clear)
@@ -65,7 +70,14 @@ struct AccountView: View {
 
                 Button("Sign out", role: .destructive) {
                     Task {
-                        try? await clerk.auth.signOut()
+                        router.selectedTab = .discover
+                        do {
+                            try await clerk.auth.signOut()
+                            toast.show("Signed out.")
+                        } catch {
+                            router.selectedTab = .account
+                            toast.show("Couldn't sign out. Please try again.")
+                        }
                     }
                 }
             } footer: {
@@ -93,11 +105,11 @@ struct AccountView: View {
     }
 
     private func seedNameFromClerk() {
-        guard let user = clerk.user else { return }
+        guard let user = clerk.user, seededUserId != user.id else { return }
         let name = [user.firstName, user.lastName].compactMap { $0 }.joined(separator: " ")
         formVM.name = name.isEmpty ? "Hooper" : name
-        // MockData.currentAccount's bio is Jamie Tran's mock story text — clear it rather than
-        // show it under a real person's real name. Clerk has no bio field to seed a real one from.
+        // Clerk has no bio field; profile editing remains local until the backend supports it.
         formVM.bio = ""
+        seededUserId = user.id
     }
 }

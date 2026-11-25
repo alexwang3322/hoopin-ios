@@ -1,4 +1,5 @@
 import SwiftUI
+import ClerkKit
 
 /// "Any avatar+name mention of a person, anywhere, links to their profile" — the web prototype's
 /// own comment on `.person-link`. Every host row, requester row, roster row, and card footer in
@@ -10,7 +11,7 @@ struct PersonLinkView: View {
     var subtitle: String?
     var avatarSize: CGFloat = 32
 
-    @Environment(RunStore.self) private var store
+    @Environment(Clerk.self) private var clerk
     @Environment(AppRouter.self) private var router
     @Environment(\.navigate) private var navigate
 
@@ -36,7 +37,7 @@ struct PersonLinkView: View {
     }
 
     private func handleTap() {
-        if user.id == store.currentUserId {
+        if user.id == clerk.user?.id {
             router.selectedTab = .account
         } else {
             navigate(.profile(user.id))

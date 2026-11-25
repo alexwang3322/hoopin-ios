@@ -46,6 +46,14 @@ enum LiveRunFormatting {
         return "\(day) · \(start)–\(end) · \(format.shortLabel)"
     }
 
+    static func shortWhen(startsAt: Date, endsAt: Date, timezoneID: String) -> String {
+        let tz = TimeZone(identifier: timezoneID) ?? .current
+        let day = dayFormatter(timeZone: tz).string(from: startsAt)
+        let start = timeFormatter(timeZone: tz).string(from: startsAt)
+        let end = timeFormatter(timeZone: tz).string(from: endsAt)
+        return "\(day) · \(start)–\(end)"
+    }
+
     /// "Wed, Sep 9 · 12:00 PM – 1:00 PM PDT · 5v5 full court" — Event Detail heading style.
     static func detailWhen(startsAt: Date, endsAt: Date, timezoneID: String, format: RunFormat) -> String {
         let tz = TimeZone(identifier: timezoneID) ?? .current

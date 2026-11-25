@@ -1,4 +1,5 @@
 import SwiftUI
+import ClerkKit
 
 /// Wraps one tab's root screen in its own `NavigationStack`, publishing a `navigate` environment
 /// action so any descendant can push an `AppRoute` (Event Detail, Profile, Disclaimer) onto this
@@ -22,29 +23,34 @@ struct TabRootStack<Content: View>: View {
 /// plus its always-present account chip, which becomes a fourth tab here so it's reachable from
 /// anywhere (SwiftUI has no equivalent to a sticky cross-screen header chip).
 struct RootView: View {
+    @Environment(Clerk.self) private var clerk
     @State private var store = RunStore()
     @State private var toast = ToastCenter()
     @State private var router = AppRouter()
 
     var body: some View {
         @Bindable var router = router
+        // Drop navigation paths and presented sheets when the active account changes.
+        let sessionKey = clerk.user?.id ?? "guest"
 
         TabView(selection: $router.selectedTab) {
             TabRootStack { DiscoverView() }
+                .id(sessionKey)
                 .tabItem { Label("Discover", systemImage: "sportscourt") }
                 .tag(AppTab.discover)
 
             TabRootStack { MyRunsView() }
+                .id(sessionKey)
                 .tabItem { Label("My Runs", systemImage: "figure.basketball") }
-                .badge(store.headerCounts.myPendingRequests)
                 .tag(AppTab.myRuns)
 
             TabRootStack { HostingView() }
+                .id(sessionKey)
                 .tabItem { Label("Hosting", systemImage: "person.3.fill") }
-                .badge(store.headerCounts.hostingPendingRequests)
                 .tag(AppTab.hosting)
 
             TabRootStack { AccountTabRootView() }
+                .id(sessionKey)
                 .tabItem { Label("Account", systemImage: "person.crop.circle") }
                 .tag(AppTab.account)
         }

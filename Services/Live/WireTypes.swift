@@ -1,8 +1,8 @@
 import Foundation
 
 /// Snake_case wire shapes exactly as API_CONTRACT.md §2 defines them — mirrors
-/// frontend/src/services/wireTypes.ts. Only the fields GET /runs and GET /runs/{id} return are
-/// modeled here (this pass is read-only browsing, not the full contract).
+/// frontend/src/services/wireTypes.ts. Only the fields used by the read-only screens are
+/// modeled here.
 
 struct WireUserSummary: Codable {
     let id: String
@@ -27,6 +27,21 @@ struct WireJoinRequest: Codable {
         case requester, message, status
         case createdAt = "created_at"
         case decidedAt = "decided_at"
+        case declineReason = "decline_reason"
+    }
+}
+
+/// GET /me/requests embeds the run alongside each of the viewer's requests.
+struct WireJoinRequestWithRun: Codable {
+    let id: String
+    let status: String
+    let createdAt: String
+    let declineReason: String?
+    let run: WireRunSummary
+
+    enum CodingKeys: String, CodingKey {
+        case id, status, run
+        case createdAt = "created_at"
         case declineReason = "decline_reason"
     }
 }

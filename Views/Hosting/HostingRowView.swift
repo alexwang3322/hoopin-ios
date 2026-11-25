@@ -1,10 +1,8 @@
 import SwiftUI
 
-/// One row in Hosting — thumbnail, title (+ DRAFT tag), meta line, pending-count badge.
-/// Ported from the web's `.list-row`.
+/// One backend-sourced row in Hosting — thumbnail, title, and run state.
 struct HostingRowView: View {
-    let run: Run
-    let pendingCount: Int
+    let run: LiveRun
 
     var body: some View {
         HStack(spacing: 16) {
@@ -54,10 +52,6 @@ struct HostingRowView: View {
 
             Spacer(minLength: 8)
 
-            if pendingCount > 0 {
-                StatusBadgeView(text: "\(pendingCount) pending", foreground: Theme.background,
-                                 background: Theme.ink, ring: Theme.ink)
-            }
             Image(systemName: "chevron.right")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Theme.textTertiary)
@@ -70,11 +64,11 @@ struct HostingRowView: View {
 
     private var metaText: String {
         if run.isDraft {
-            return "\(RunFormatting.shortWhen(run)) · \(run.goingCount) going"
+            return "\(LiveRunFormatting.shortWhen(startsAt: run.startsAt, endsAt: run.endsAt, timezoneID: run.timezoneID)) · \(run.goingCount) going"
         }
         if let capacity = run.capacity {
-            return "\(RunFormatting.shortWhen(run)) · \(run.goingCount) going of \(capacity)"
+            return "\(LiveRunFormatting.shortWhen(startsAt: run.startsAt, endsAt: run.endsAt, timezoneID: run.timezoneID)) · \(run.goingCount) going of \(capacity)"
         }
-        return "\(RunFormatting.shortWhen(run)) · \(run.goingCount) going"
+        return "\(LiveRunFormatting.shortWhen(startsAt: run.startsAt, endsAt: run.endsAt, timezoneID: run.timezoneID)) · \(run.goingCount) going"
     }
 }

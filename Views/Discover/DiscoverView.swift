@@ -1,19 +1,26 @@
 import SwiftUI
+import ClerkKit
+import ClerkKitUI
 
-/// Wired to backend/'s live API (GET /runs) — real data, not RunStore's mock fixtures. My Runs/
-/// Hosting/Create Run stay on mock data (see LiveEventDetailView's note); tapping a card here
+/// Wired to backend/'s live API (GET /runs) — real data, not RunStore's mock fixtures.
+/// Create Run still uses mock data (see LiveEventDetailView's note); tapping a card here
 /// goes to `.liveRunDetail`, a separate read-only detail screen, not the mock `EventDetailView`.
 struct DiscoverView: View {
+    @Environment(Clerk.self) private var clerk
     @Environment(\.navigate) private var navigate
     @State private var liveVM = LiveDiscoverViewModel()
     @State private var filters = DiscoverFilterViewModel()
     @State private var showingFilters = false
     @State private var showingCreate = false
+    @State private var showingSignIn = false
+    @State private var loadedViewerKey: String?
     /// Defaults to San Diego, matching the web's default.
     @State private var selectedCity: City = .sd
     @State private var showingDatePicker = false
 
     private let columns = [GridItem(.adaptive(minimum: 300), spacing: 20)]
+
+    private var viewerKey: String { clerk.user?.id ?? "guest" }
 
     private var fromDateLabel: String {
         let f = DateFormatter()
@@ -63,7 +70,7 @@ struct DiscoverView: View {
                 }
                 .padding(.horizontal, 16)
 
-                if liveVM.isLoading {
+                if liveVM.isLoading || loadedViewerKey != viewerKey {
                     ProgressView()
                         .frame(maxWidth: .infinity)
                         .padding(.top, 40)
@@ -103,7 +110,11 @@ struct DiscoverView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    showingCreate = true
+                    if clerk.user == nil {
+                        showingSignIn = true
+                    } else {
+                        showingCreate = true
+                    }
                 } label: {
                     Image(systemName: "plus.circle.fill")
                 }
@@ -115,8 +126,14 @@ struct DiscoverView: View {
         .sheet(isPresented: $showingCreate) {
             CreateRunView(viewModel: CreateRunFormViewModel())
         }
-        .task(id: "\(selectedCity.rawValue)-\(filters.format?.rawValue ?? "")") {
+        .sheet(isPresented: $showingSignIn) { AuthView() }
+        .task(id: "\(viewerKey)-\(selectedCity.rawValue)-\(filters.format?.rawValue ?? "")") {
+            let requestedViewerKey = viewerKey
+            loadedViewerKey = nil
             await liveVM.load(city: selectedCity, format: filters.format)
+            if !Task.isCancelled, viewerKey == requestedViewerKey {
+                loadedViewerKey = requestedViewerKey
+            }
         }
         .refreshable {
             await liveVM.load(city: selectedCity, format: filters.format)

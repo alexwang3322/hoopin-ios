@@ -14,7 +14,7 @@ enum AppRoute: Hashable {
     case runDetail(String)
     case profile(String)
     /// A backend-sourced run, read-only — distinct from `runDetail`, which stays on RunStore's
-    /// mock data (My Runs/Hosting rows still route there). See LiveEventDetailView's note.
+    /// mock data. See LiveEventDetailView's note.
     case liveRunDetail(String)
 }
 
