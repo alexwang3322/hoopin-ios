@@ -1,15 +1,24 @@
 import SwiftUI
 import ClerkKit
-import ClerkKitUI
+
+private struct DraftEditor: Identifiable {
+    let id: String
+    let viewModel: CreateRunFormViewModel
+}
 
 struct HostingView: View {
     @Environment(Clerk.self) private var clerk
+    @Environment(AppRouter.self) private var router
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.navigate) private var navigate
     @State private var runs: [LiveRun] = []
     @State private var loadedUserId: String?
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var showingSignIn = false
+    @State private var showingCreate = false
+    @State private var createViewModel = CreateRunFormViewModel()
+    @State private var draftEditor: DraftEditor?
+    @State private var loadingDraftId: String?
 
     var body: some View {
         ScrollView {
@@ -20,7 +29,7 @@ struct HostingView: View {
                     } description: {
                         Text("Runs you host appear here after you sign in.")
                     } actions: {
-                        Button("Sign in") { showingSignIn = true }
+                        Button("Sign in") { router.showingSignIn = true }
                             .buttonStyle(.borderedProminent)
                             .tint(Theme.accent)
                     }
@@ -38,11 +47,16 @@ struct HostingView: View {
                 } else {
                     ForEach(runs) { run in
                         Button {
-                            navigate(.liveRunDetail(run.id))
+                            if run.isDraft {
+                                Task { await openDraft(id: run.id) }
+                            } else {
+                                navigate(.liveRunDetail(run.id))
+                            }
                         } label: {
                             HostingRowView(run: run)
                         }
                         .buttonStyle(.plain)
+                        .disabled(loadingDraftId != nil)
                     }
                 }
             }
@@ -50,8 +64,25 @@ struct HostingView: View {
         }
         .background(Theme.background)
         .navigationTitle("Hosting")
-        .sheet(isPresented: $showingSignIn) { AuthView() }
-        .task(id: clerk.user?.id) { await loadRuns() }
+        .toolbar {
+            if clerk.user != nil {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        createViewModel = CreateRunFormViewModel()
+                        showingCreate = true
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingCreate) {
+            CreateRunView(viewModel: createViewModel)
+        }
+        .sheet(item: $draftEditor) { editor in
+            CreateRunView(viewModel: editor.viewModel)
+        }
+        .task(id: "\(clerk.user?.id ?? "guest")-\(router.runsRevision)") { await loadRuns() }
         .refreshable {
             if clerk.user != nil { await loadRuns() }
         }
@@ -80,5 +111,20 @@ struct HostingView: View {
             errorMessage = "Couldn't load your hosted runs. Pull to refresh to try again."
         }
         isLoading = false
+    }
+
+    private func openDraft(id: String) async {
+        guard let userId = clerk.user?.id, loadingDraftId == nil else { return }
+        loadingDraftId = id
+        defer { loadingDraftId = nil }
+        do {
+            let wire = try await LiveApiClient.getRun(id: id)
+            guard !Task.isCancelled, clerk.user?.id == userId, wire.isDraft else { return }
+            let detail = LiveMappers.toLiveRunDetail(wire)
+            draftEditor = DraftEditor(id: id, viewModel: CreateRunFormViewModel(editingDraft: detail))
+        } catch {
+            guard clerk.user?.id == userId else { return }
+            toast.show("Couldn't open this draft. Please try again.")
+        }
     }
 }

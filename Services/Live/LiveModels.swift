@@ -6,7 +6,7 @@ import Foundation
 /// relationship to real data, and API_CONTRACT.md's server-computed fields (`viewer_action`,
 /// `exact_address`-or-locked-reason, embedded `host`/`attendees`) need no store lookup at all —
 /// they're just properties on the fetched object, mirroring frontend's contract-driven design.
-/// Create Run and the existing mock EventDetailView still use RunStore fixtures.
+/// The existing mock EventDetailView still uses RunStore fixtures.
 
 /// Card-list shape (`viewer_status`) — distinct from `LiveViewerAction` (detail-only); the
 /// contract itself keeps these as two separate enums (§2).

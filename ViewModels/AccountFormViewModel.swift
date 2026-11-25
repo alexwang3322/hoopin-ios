@@ -1,9 +1,7 @@
 import Foundation
 import Observation
 
-/// Owns the Account screen's editable field state, seeded from the store's current profile and
-/// written back on Save — matches the web's `saveAccountBtn` handler (recompute initials from
-/// the edited name, update the shared profile so every other mention of "you" stays in sync).
+/// Editable account fields loaded from and saved to the authenticated backend profile.
 @Observable
 final class AccountFormViewModel {
     var name: String
@@ -12,12 +10,12 @@ final class AccountFormViewModel {
     var gender: Gender
     var position: PlayerPosition
 
-    init(profile: AccountProfile) {
-        name = profile.user.name
-        bio = profile.user.bio ?? ""
-        location = profile.location
-        gender = profile.gender
-        position = profile.position
+    init() {
+        name = ""
+        bio = ""
+        location = .sd
+        gender = .preferNotToSay
+        position = .flexible
     }
 
     var displayInitials: String { initials(from: name) }
@@ -33,15 +31,32 @@ final class AccountFormViewModel {
         return (first + last).uppercased()
     }
 
-    func save(in store: RunStore) {
-        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let finalName = trimmedName.isEmpty ? "Hooper" : trimmedName
-        var user = store.currentUser
-        user.name = finalName
-        user.initials = initials(from: finalName)
-        user.bio = bio.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        let updated = AccountProfile(user: user, location: location, gender: gender, position: position)
-        store.updateAccount(updated)
+    func apply(_ profile: WireAccountProfile) throws {
+        guard let location = City(rawValue: profile.location ?? City.sd.rawValue),
+              let gender = Gender(rawValue: profile.gender ?? Gender.preferNotToSay.rawValue),
+              let position = PlayerPosition(rawValue: profile.position ?? PlayerPosition.flexible.rawValue) else {
+            throw AccountProfileError.unsupportedPreference
+        }
+        name = profile.name
+        bio = profile.bio ?? ""
+        self.location = location
+        self.gender = gender
+        self.position = position
     }
+
+    var updateRequest: WireUpdateAccountRequest {
+        let trimmedBio = bio.trimmingCharacters(in: .whitespacesAndNewlines)
+        return WireUpdateAccountRequest(
+            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+            bio: trimmedBio.isEmpty ? nil : trimmedBio,
+            location: location.rawValue,
+            gender: gender.rawValue,
+            position: position.rawValue
+        )
+    }
+}
+
+enum AccountProfileError: Error {
+    case unsupportedPreference
+    case incorrectAccount
 }

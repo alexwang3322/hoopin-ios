@@ -6,21 +6,49 @@ import ClerkKit
 /// out, and small gray links out to the web app's legal/info pages (About/Terms/Privacy/Security/
 /// Disclaimer live natively on the web now, not duplicated here — see AccountTabRootView.swift's
 /// note). Reinterpreted as a native `Form` instead of the web's centered card layout. Reachable
-/// only while signed in (AccountTabRootView gates just this tab). Profile editing is still local
-/// mock state until the backend supports it.
+/// only while signed in (AccountTabRootView gates just this tab).
 struct AccountView: View {
-    @Environment(RunStore.self) private var store
     @Environment(ToastCenter.self) private var toast
     @Environment(Clerk.self) private var clerk
     @Environment(AppRouter.self) private var router
 
-    @State private var formVM = AccountFormViewModel(profile: AccountProfile(
-        user: UserSummary(id: "", name: "", initials: "", bio: nil, avatarColorHex: ""),
-        location: .sd, gender: .preferNotToSay, position: .flexible
-    ))
-    @State private var seededUserId: String?
+    @State private var formVM = AccountFormViewModel()
+    @State private var isLoading = true
+    @State private var isSaving = false
+    @State private var profileLoaded = false
+    @State private var supportsEditing = false
+    @State private var loadError: String?
+    @State private var saveError = ""
+    @State private var showingSaveError = false
 
     var body: some View {
+        Group {
+            if isLoading {
+                ProgressView("Loading profile…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let loadError {
+                ContentUnavailableView {
+                    Label("Couldn't load account", systemImage: "wifi.slash")
+                } description: {
+                    Text(loadError)
+                } actions: {
+                    Button("Try again") { Task { await loadProfile() } }
+                        .buttonStyle(.borderedProminent)
+                }
+            } else {
+                accountForm
+            }
+        }
+        .navigationTitle("Account")
+        .task(id: clerk.user?.id) { await loadProfile() }
+        .alert("Couldn't save profile", isPresented: $showingSaveError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(saveError)
+        }
+    }
+
+    private var accountForm: some View {
         Form {
             Section {
                 HStack {
@@ -38,6 +66,7 @@ struct AccountView: View {
                 TextField("Bio", text: $formVM.bio, axis: .vertical)
                     .lineLimit(2...4)
             }
+            .disabled(!supportsEditing || isSaving)
 
             Section {
                 Picker("Location", selection: $formVM.location) {
@@ -60,13 +89,19 @@ struct AccountView: View {
             } footer: {
                 Text("Position helps hosts balance teams.")
             }
+            .disabled(!supportsEditing || isSaving)
 
             Section {
+                if !supportsEditing {
+                    Text("Profile editing is temporarily unavailable. Please try again later.")
+                        .foregroundStyle(Theme.textSecondary)
+                }
                 Button("Save changes") {
-                    formVM.save(in: store)
-                    toast.show("Profile updated.")
+                    Task { await saveProfile() }
                 }
                 .fontWeight(.semibold)
+                .disabled(!supportsEditing || isSaving)
+                if isSaving { ProgressView("Saving…") }
 
                 Button("Sign out", role: .destructive) {
                     Task {
@@ -100,16 +135,70 @@ struct AccountView: View {
                 .padding(.top, 10)
             }
         }
-        .navigationTitle("Account")
-        .onAppear(perform: seedNameFromClerk)
     }
 
-    private func seedNameFromClerk() {
-        guard let user = clerk.user, seededUserId != user.id else { return }
-        let name = [user.firstName, user.lastName].compactMap { $0 }.joined(separator: " ")
-        formVM.name = name.isEmpty ? "Hooper" : name
-        // Clerk has no bio field; profile editing remains local until the backend supports it.
-        formVM.bio = ""
-        seededUserId = user.id
+    @MainActor
+    private func loadProfile() async {
+        guard let userId = clerk.user?.id else { return }
+        isLoading = true
+        profileLoaded = false
+        supportsEditing = false
+        loadError = nil
+        do {
+            let profile = try await LiveApiClient.getMe(userId: userId)
+            guard !Task.isCancelled, clerk.user?.id == userId else { return }
+            guard profile.id == userId else { throw AccountProfileError.incorrectAccount }
+            try formVM.apply(profile)
+            profileLoaded = true
+            supportsEditing = profile.supportsEditing
+        } catch {
+            guard !Task.isCancelled, clerk.user?.id == userId else { return }
+            loadError = message(for: error, action: "load")
+        }
+        isLoading = false
+    }
+
+    @MainActor
+    private func saveProfile() async {
+        guard profileLoaded, supportsEditing, !isSaving, let userId = clerk.user?.id else { return }
+        let request = formVM.updateRequest
+        guard !request.name.isEmpty else {
+            showSaveError("Enter your name.")
+            return
+        }
+        guard (request.bio?.count ?? 0) <= 500 else {
+            showSaveError("Bio must be 500 characters or fewer.")
+            return
+        }
+        isSaving = true
+        defer { isSaving = false }
+        do {
+            let profile = try await LiveApiClient.updateMe(request, userId: userId)
+            guard clerk.user?.id == userId else { return }
+            guard profile.id == userId else { throw AccountProfileError.incorrectAccount }
+            try formVM.apply(profile)
+            toast.show("Profile updated.")
+            // The server updates Clerk's name; refresh this session's user when possible.
+            try? await clerk.user?.reload()
+        } catch {
+            guard clerk.user?.id == userId else { return }
+            showSaveError(message(for: error, action: "save"))
+        }
+    }
+
+    private func showSaveError(_ message: String) {
+        saveError = message
+        showingSaveError = true
+    }
+
+    private func message(for error: Error, action: String) -> String {
+        if case let LiveApiClient.ApiError.server(_, _, message) = error { return message }
+        if let profileError = error as? AccountProfileError {
+            switch profileError {
+            case .incorrectAccount: return "Your account changed. Please reopen this screen."
+            case .unsupportedPreference: return "This profile contains an unsupported preference."
+            }
+        }
+        return "Couldn't \(action) your profile. Please try again."
     }
 }

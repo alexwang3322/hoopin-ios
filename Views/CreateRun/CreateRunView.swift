@@ -1,6 +1,5 @@
 import SwiftUI
 import ClerkKit
-import ClerkKitUI
 
 /// The "Host a run" form, reinterpreted as a sectioned native `Form` inside a sheet rather than
 /// the web's single scrolling column. Section grouping mirrors the web's field order: Basics,
@@ -8,12 +7,13 @@ import ClerkKitUI
 struct CreateRunView: View {
     @Bindable var viewModel: CreateRunFormViewModel
 
-    @Environment(RunStore.self) private var store
     @Environment(Clerk.self) private var clerk
     @Environment(ToastCenter.self) private var toast
     @Environment(AppRouter.self) private var router
     @Environment(\.dismiss) private var dismiss
-    @State private var showingSignIn = false
+    @State private var isSaving = false
+    @State private var showingError = false
+    @State private var errorMessage = ""
 
     var body: some View {
         NavigationStack {
@@ -80,15 +80,12 @@ struct CreateRunView: View {
                 }
 
                 Section {
-                    Button("Save as draft") {
-                        guard clerk.user != nil else {
-                            showingSignIn = true
-                            return
-                        }
-                        viewModel.saveDraft(in: store)
-                        toast.show("\(viewModel.values.title) saved as draft.")
-                        dismiss()
+                    Button(isSaving ? "Saving…" : "Save as draft") {
+                        Task { await save(publish: false) }
                     }
+                    .disabled(isSaving)
+                } footer: {
+                    Text("Drafts need a title, court name, and exact address.")
                 }
             }
             .navigationTitle(viewModel.heading)
@@ -96,23 +93,65 @@ struct CreateRunView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .disabled(isSaving)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Publish") {
-                        guard clerk.user != nil else {
-                            showingSignIn = true
-                            return
-                        }
-                        let title = viewModel.values.title.trimmingCharacters(in: .whitespacesAndNewlines)
-                        viewModel.publish(in: store)
-                        router.selectedTab = .hosting
-                        toast.show("\(title.isEmpty ? "Untitled run" : title) published.")
-                        dismiss()
+                    Button(isSaving ? "Saving…" : "Publish") {
+                        Task { await save(publish: true) }
                     }
                     .fontWeight(.semibold)
+                    .disabled(isSaving)
                 }
             }
         }
-        .sheet(isPresented: $showingSignIn) { AuthView() }
+        .alert("Couldn't save run", isPresented: $showingError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(errorMessage)
+        }
+        .interactiveDismissDisabled(isSaving)
+    }
+
+    private func save(publish: Bool) async {
+        guard let userId = clerk.user?.id else {
+            dismiss()
+            router.showingSignIn = true
+            return
+        }
+        guard !isSaving else { return }
+
+        do {
+            let body = try viewModel.values.toWireRequest(publish: publish)
+            isSaving = true
+            defer { isSaving = false }
+            if let draftId = viewModel.draftId {
+                _ = try await LiveApiClient.updateRun(id: draftId, body: body)
+            } else {
+                _ = try await LiveApiClient.createRun(body)
+            }
+            guard clerk.user?.id == userId else { return }
+            router.runsRevision += 1
+            router.selectedTab = .hosting
+            toast.show(publish ? "\(body.title) published." : "\(body.title) saved as draft.")
+            dismiss()
+        } catch {
+            guard clerk.user?.id == userId else { return }
+            errorMessage = displayMessage(for: error)
+            showingError = true
+        }
+    }
+
+    private func displayMessage(for error: Error) -> String {
+        if let formError = error as? RunFormError {
+            return formError.localizedDescription
+        }
+        if let apiError = error as? LiveApiClient.ApiError {
+            switch apiError {
+            case .server(_, _, let message): return message
+            case .transport: return "Connection failed. Please try again."
+            case .decoding: return "The server returned an unexpected response."
+            }
+        }
+        return "Please try again."
     }
 }

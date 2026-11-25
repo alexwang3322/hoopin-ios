@@ -25,4 +25,6 @@ enum AppRoute: Hashable {
 @Observable
 final class AppRouter {
     var selectedTab: AppTab = .discover
+    var runsRevision = 0
+    var showingSignIn = false
 }

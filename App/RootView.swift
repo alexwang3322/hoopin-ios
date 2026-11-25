@@ -1,5 +1,6 @@
 import SwiftUI
 import ClerkKit
+import ClerkKitUI
 
 /// Wraps one tab's root screen in its own `NavigationStack`, publishing a `navigate` environment
 /// action so any descendant can push an `AppRoute` (Event Detail, Profile, Disclaimer) onto this
@@ -55,6 +56,13 @@ struct RootView: View {
                 .tag(AppTab.account)
         }
         .tint(Theme.accent)
+        .sheet(isPresented: $router.showingSignIn, onDismiss: {
+            if clerk.user == nil && router.selectedTab == .account {
+                router.selectedTab = .discover
+            }
+        }) {
+            AuthView()
+        }
         .overlay(alignment: .bottom) { ToastOverlay() }
         .environment(store)
         .environment(toast)

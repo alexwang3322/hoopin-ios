@@ -1,15 +1,14 @@
 import SwiftUI
 import ClerkKit
-import ClerkKitUI
 
 struct MyRunsView: View {
     @Environment(Clerk.self) private var clerk
+    @Environment(AppRouter.self) private var router
     @Environment(\.navigate) private var navigate
     @State private var requests: [WireJoinRequestWithRun] = []
     @State private var loadedUserId: String?
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var showingSignIn = false
 
     var body: some View {
         ScrollView {
@@ -20,7 +19,7 @@ struct MyRunsView: View {
                     } description: {
                         Text("Your requests and games appear here after you sign in.")
                     } actions: {
-                        Button("Sign in") { showingSignIn = true }
+                        Button("Sign in") { router.showingSignIn = true }
                             .buttonStyle(.borderedProminent)
                             .tint(Theme.accent)
                     }
@@ -50,7 +49,6 @@ struct MyRunsView: View {
         }
         .background(Theme.background)
         .navigationTitle("My Runs")
-        .sheet(isPresented: $showingSignIn) { AuthView() }
         .task(id: clerk.user?.id) { await loadRequests() }
         .refreshable {
             if clerk.user != nil { await loadRequests() }

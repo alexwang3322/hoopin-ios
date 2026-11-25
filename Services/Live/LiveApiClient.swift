@@ -1,7 +1,7 @@
 import Foundation
 import ClerkKit
 
-/// Thin, read-only client for the endpoints wired so far —
+/// Thin client for the endpoints wired so far —
 /// mirrors frontend/src/services/apiClient.ts's shape (one function per contract endpoint,
 /// typed against wire DTOs), not the full contract. Points at the deployed backend directly
 /// (mobile-ios has no local-dev env-var mechanism like frontend/'s .env.local yet).
@@ -24,6 +24,16 @@ enum LiveApiClient {
         if let token = try? await Clerk.shared.session?.getToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
+        return request
+    }
+
+    private static func authenticatedRequest(path: String, userId: String) async throws -> URLRequest {
+        guard let session = await Clerk.shared.session, session.user?.id == userId,
+              let token = try await session.getToken() else {
+            throw ApiError.server(status: 401, code: "SESSION_CHANGED", message: "Please sign in again.")
+        }
+        var request = URLRequest(url: baseURL.appendingPathComponent(path))
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
 
@@ -73,6 +83,19 @@ enum LiveApiClient {
         return try await send(request, as: WireUserSummary.self)
     }
 
+    static func getMe(userId: String) async throws -> WireAccountProfile {
+        let request = try await authenticatedRequest(path: "me", userId: userId)
+        return try await send(request, as: WireAccountProfile.self)
+    }
+
+    static func updateMe(_ body: WireUpdateAccountRequest, userId: String) async throws -> WireAccountProfile {
+        var request = try await authenticatedRequest(path: "me", userId: userId)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(body)
+        return try await send(request, as: WireAccountProfile.self)
+    }
+
     static func getMyRequests() async throws -> [WireJoinRequestWithRun] {
         var items: [WireJoinRequestWithRun] = []
         var cursor: String?
@@ -97,5 +120,27 @@ enum LiveApiClient {
             cursor = page.nextCursor
         } while cursor != nil
         return items
+    }
+
+    static func createRun(_ body: WireCreateRunRequest) async throws -> WireRunDetail {
+        var request = await authorizedRequest(path: "runs")
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(body)
+        return try await send(request, as: WireRunDetail.self)
+    }
+
+    static func updateRun(id: String, body: WireCreateRunRequest) async throws -> WireRunDetail {
+        var request = await authorizedRequest(path: "runs/\(id)")
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(body)
+        return try await send(request, as: WireRunDetail.self)
+    }
+
+    static func cancelRun(id: String, userId: String) async throws -> WireRunDetail {
+        var request = try await authenticatedRequest(path: "runs/\(id)/cancel", userId: userId)
+        request.httpMethod = "POST"
+        return try await send(request, as: WireRunDetail.self)
     }
 }

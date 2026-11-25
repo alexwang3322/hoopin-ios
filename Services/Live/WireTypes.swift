@@ -11,6 +11,28 @@ struct WireUserSummary: Codable {
     let bio: String?
 }
 
+struct WireAccountProfile: Decodable {
+    let id: String
+    let name: String
+    let initials: String
+    let bio: String?
+    let location: String?
+    let gender: String?
+    let position: String?
+
+    var supportsEditing: Bool {
+        location != nil && gender != nil && position != nil
+    }
+}
+
+struct WireUpdateAccountRequest: Encodable {
+    let name: String
+    let bio: String?
+    let location: String
+    let gender: String
+    let position: String
+}
+
 struct WireJoinRequest: Codable {
     let id: String
     let runId: String
@@ -93,6 +115,54 @@ struct WireRunSummary: Codable {
         case visibility
         case viewerStatus = "viewer_status"
         case coverSeed = "cover_seed"
+    }
+}
+
+struct WireCreateRunRequest: Encodable {
+    let title: String
+    let description: String
+    let date: String
+    let startTime: String
+    let endTime: String
+    let timezone: String
+    let format: String
+    let venueName: String
+    let exactAddress: String
+    let city: String
+    let capacity: Int?
+    let visibility: String
+    let autoApprove: Bool
+    let publish: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case title, description, date, timezone, format, city, capacity, visibility, publish
+        case startTime = "start_time"
+        case endTime = "end_time"
+        case venueName = "venue_name"
+        case exactAddress = "exact_address"
+        case autoApprove = "auto_approve"
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(title, forKey: .title)
+        try container.encode(description, forKey: .description)
+        try container.encode(date, forKey: .date)
+        try container.encode(startTime, forKey: .startTime)
+        try container.encode(endTime, forKey: .endTime)
+        try container.encode(timezone, forKey: .timezone)
+        try container.encode(format, forKey: .format)
+        try container.encode(venueName, forKey: .venueName)
+        try container.encode(exactAddress, forKey: .exactAddress)
+        try container.encode(city, forKey: .city)
+        if let capacity {
+            try container.encode(capacity, forKey: .capacity)
+        } else {
+            try container.encodeNil(forKey: .capacity)
+        }
+        try container.encode(visibility, forKey: .visibility)
+        try container.encode(autoApprove, forKey: .autoApprove)
+        try container.encode(publish, forKey: .publish)
     }
 }
 

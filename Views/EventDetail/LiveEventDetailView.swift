@@ -5,17 +5,22 @@ import ClerkKit
 /// which is tightly coupled to `RunStore`'s mock-specific lookups (`viewerAction(for:)`,
 /// `profile(_:)`, etc. all assume the "Jamie Tran" mock world). This renders the server-computed
 /// fields directly off the fetched object, no store needed at all — matching frontend's
-/// contract-driven design. Request/approve/decline/cancel aren't wired yet (this pass is
-/// read-only browsing only) — the action panel shows the real state informationally rather than
-/// with working buttons.
+/// contract-driven design. Host cancellation is wired to the backend; request/approve/decline
+/// remain informational for now.
 struct LiveEventDetailView: View {
     let runId: String
 
     @Environment(Clerk.self) private var clerk
+    @Environment(AppRouter.self) private var router
+    @Environment(ToastCenter.self) private var toast
     @State private var detail: LiveRunDetail?
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var loadedViewerKey: String?
+    @State private var showingCancelConfirmation = false
+    @State private var isCancelling = false
+    @State private var cancelError = ""
+    @State private var showingCancelError = false
 
     private var viewerKey: String { clerk.user?.id ?? "guest" }
 
@@ -36,6 +41,17 @@ struct LiveEventDetailView: View {
         .background(Theme.background)
         .navigationBarTitleDisplayMode(.inline)
         .task(id: viewerKey) { await load() }
+        .alert("Cancel this run?", isPresented: $showingCancelConfirmation) {
+            Button("Cancel run", role: .destructive) { Task { await cancelRun() } }
+            Button("Never mind", role: .cancel) {}
+        } message: {
+            Text("Players who requested or were approved will still see the run marked cancelled.")
+        }
+        .alert("Couldn't cancel run", isPresented: $showingCancelError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(cancelError)
+        }
     }
 
     private func load() async {
@@ -53,6 +69,36 @@ struct LiveEventDetailView: View {
         }
         loadedViewerKey = requestedViewerKey
         isLoading = false
+    }
+
+    @MainActor
+    private func cancelRun() async {
+        guard !isCancelling,
+              let userId = clerk.user?.id,
+              let current = detail,
+              current.id == runId,
+              current.host.id == userId,
+              current.viewerAction == .host,
+              !current.isCancelled,
+              !current.isFinished else { return }
+
+        isCancelling = true
+        defer { isCancelling = false }
+        do {
+            let updated = try await LiveApiClient.cancelRun(id: runId, userId: userId)
+            guard clerk.user?.id == userId, updated.id == runId else { return }
+            detail = LiveMappers.toLiveRunDetail(updated)
+            router.runsRevision += 1
+            toast.show("Run cancelled.")
+        } catch {
+            guard clerk.user?.id == userId else { return }
+            if case let LiveApiClient.ApiError.server(_, _, message) = error {
+                cancelError = message
+            } else {
+                cancelError = "Couldn't cancel this run. Please try again."
+            }
+            showingCancelError = true
+        }
     }
 
     @ViewBuilder
@@ -162,8 +208,7 @@ struct LiveEventDetailView: View {
         .panelStyle()
     }
 
-    /// Informational only — matches the real 7-branch state, but request/approve/decline aren't
-    /// wired yet (read-only pass), so this shows what would happen rather than a working action.
+    /// The host can cancel an active run. Other actions are still informational.
     @ViewBuilder
     private func actionPanel(for run: LiveRunDetail) -> some View {
         if run.isCancelled {
@@ -181,15 +226,22 @@ struct LiveEventDetailView: View {
                 Text("Requesting to play isn't available in the app yet — use the web app for now.")
                     .font(.subheadline).foregroundStyle(Theme.textSecondary).padding(16).panelStyle()
             case .host:
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("This is your run.")
-                        .font(.subheadline).foregroundStyle(Theme.textSecondary)
-                    if let pending = run.pendingRequests, !pending.isEmpty {
-                        Text("\(run.pendingCount ?? pending.count) pending request(s) — review them on the web app for now.")
-                            .font(.system(size: 13.5)).foregroundStyle(Theme.textTertiary)
-                    }
+                Button(role: .destructive) {
+                    showingCancelConfirmation = true
+                } label: {
+                    Text(isCancelling ? "Cancelling…" : "Cancel game")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .strokeBorder(.red, lineWidth: 1)
+                        }
+                        .contentShape(Rectangle())
                 }
-                .padding(16).panelStyle()
+                .buttonStyle(.plain)
+                .disabled(isCancelling)
             case .approved:
                 Text("You're in 🎉")
                     .font(.subheadline.weight(.semibold))
